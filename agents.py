@@ -20,7 +20,6 @@ class Agent:
 class Runner:
     @staticmethod
     async def run(agent, user_input, run_config=None):
-        # Gemini API endpoint and headers
         url = f"{agent.model.openai_client.base_url}models/{agent.model.model}:generateContent"
         headers = {
             "Content-Type": "application/json",
@@ -31,15 +30,21 @@ class Runner:
                 {"parts": [{"text": f"{agent.instructions}\nUser: {user_input}"}]}
             ]
         }
-        async with httpx.AsyncClient(timeout=30.0) as client:  # 30 seconds timeout
-            response = await client.post(url, headers=headers, json=data)
-            response.raise_for_status()
-            result = response.json()
-            # Parse the response for the answer
-            try:
-                final_output = result["candidates"][0]["content"]["parts"][0]["text"]
-            except Exception:
-                final_output = "Sorry, I couldn't get a response from Gemini."
+        try:
+            async with httpx.AsyncClient(timeout=30.0) as client:
+                response = await client.post(url, headers=headers, json=data)
+                response.raise_for_status()
+                result = response.json()
+                try:
+                    final_output = result["candidates"][0]["content"]["parts"][0]["text"]
+                except Exception:
+                    final_output = "Sorry, I couldn't parse the response from Gemini."
+        except httpx.HTTPStatusError as e:
+            final_output = f"HTTP error: {e.response.status_code} - {e.response.text}"
+        except httpx.RequestError as e:
+            final_output = f"Request error: {str(e)}"
+        except Exception as e:
+            final_output = f"Unexpected error: {str(e)}"
         class Result:
             pass
         Result.final_output = final_output
