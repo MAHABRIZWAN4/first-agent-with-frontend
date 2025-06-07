@@ -194,7 +194,7 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # User Input
-user_input = st.text_input("**Your question**", placeholder="How can I assist you today?")
+user_input = st.text_input("**💬 Ask me anything**", placeholder="How can I assist you today?")
 
 # Response on Submit
 if st.button("**Get Answer**") and user_input.strip():
