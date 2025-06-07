@@ -8,6 +8,8 @@ load_dotenv()
 
 MODEL_NAME = "gemini-2.0-flash"
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
+if not GEMINI_API_KEY or not isinstance(GEMINI_API_KEY, str):
+    raise ValueError("GEMINI_API_KEY is missing or invalid. Please set it as a Streamlit secret.")
 
 external_client = AsyncOpenAI(
     api_key=GEMINI_API_KEY,
